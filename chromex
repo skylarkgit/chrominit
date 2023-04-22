@@ -1,0 +1,35 @@
+#!/bin/bash
+
+print_help() {
+  echo "Usage: $0 <subcommand> [options]"
+  echo ""
+  echo "Subcommands:"
+  echo "  init           Initialize a new Chrome extension project"
+  echo "  manifest       Add or remove properties in the manifest.json file"
+  echo ""
+  echo "For help with each subcommand, run:"
+  echo "$0 <subcommand> --help"
+}
+
+if [ "$#" -eq 0 ]; then
+  print_help
+  exit 1
+fi
+
+SUBCOMMAND="$1"
+shift
+
+case "$SUBCOMMAND" in
+  init)
+    ./init_chrome_extension.sh "$@"
+    ;;
+  manifest)
+    ./modify_manifest.sh "$@"
+    ;;
+  # Add more subcommands below
+  *)
+    echo "Error: Unknown subcommand '$SUBCOMMAND'"
+    print_help
+    exit 1
+    ;;
+esac

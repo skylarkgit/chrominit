@@ -32,7 +32,7 @@ EXTENSION_NAME=$1
 EXTENSION_TYPE=$2
 
 # Create extension directory and files
-mkdir "$EXTENSION_NAME"
+mkdir -p "$EXTENSION_NAME"
 cd "$EXTENSION_NAME"
 
 # Create manifest.json
@@ -42,11 +42,7 @@ cat <<EOT > manifest.json
   "name": "${EXTENSION_NAME}",
   "version": "1.0",
   "description": "A simple ${EXTENSION_TYPE} extension",
-  "icons": {
-    "48": "icon.png"
-  },
   "permissions": []
-}
 EOT
 
 # Add type-specific configuration to manifest.json
