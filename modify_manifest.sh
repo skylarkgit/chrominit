@@ -87,7 +87,12 @@ fi
 
 case "$ACTION" in
     add)
-        jq ".$PROPERTY = $VALUE" "$MANIFEST_FILE" > "${MANIFEST_FILE}.tmp" && mv "${MANIFEST_FILE}.tmp" "$MANIFEST_FILE"
+        if [[ $VALUE =~ ^\" ]]; then
+        jq ".${PROPERTY} = ${VALUE}" "$MANIFEST_FILE" > "${MANIFEST_FILE}.tmp"
+        else
+        jq ".${PROPERTY} = \"${VALUE}\"" "$MANIFEST_FILE" > "${MANIFEST_FILE}.tmp"
+        fi
+        mv "${MANIFEST_FILE}.tmp" "$MANIFEST_FILE"
         ;;
 
     remove)

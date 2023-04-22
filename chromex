@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPTS_DIR="/usr/local/bin/chromex_scripts"
+
 print_help() {
   echo "Usage: $0 <subcommand> [options]"
   echo ""
@@ -21,10 +23,10 @@ shift
 
 case "$SUBCOMMAND" in
   init)
-    ./init_chrome_extension.sh "$@"
+    "$SCRIPTS_DIR/init_chrome_extension.sh" "$@"
     ;;
   manifest)
-    ./modify_manifest.sh "$@"
+    "$SCRIPTS_DIR/modify_manifest.sh" "$@"
     ;;
   # Add more subcommands below
   *)
