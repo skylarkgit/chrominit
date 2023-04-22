@@ -28,73 +28,94 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-EXTENSION_NAME=$1
-EXTENSION_TYPE=$2
+EXTENSION_NAME="$1"
+EXTENSION_TYPE="$2"
+EXTENSION_DIR="$EXTENSION_NAME"
 
-# Create extension directory and files
-mkdir -p "$EXTENSION_NAME"
-cd "$EXTENSION_NAME"
+mkdir -p "$EXTENSION_DIR"
+cd "$EXTENSION_DIR"
 
-# Create manifest.json
-cat <<EOT > manifest.json
+# Create a basic manifest.json file
+cat > manifest.json <<EOL
 {
-  "manifest_version": 2,
-  "name": "${EXTENSION_NAME}",
-  "version": "1.0",
-  "description": "A simple ${EXTENSION_TYPE} extension",
-  "permissions": []
-EOT
-
-# Add type-specific configuration to manifest.json
-case $EXTENSION_TYPE in
-    popup)
-        cat <<EOT >> manifest.json
-  ,
-  "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
-  }
+    "manifest_version": 2,
+    "name": "$EXTENSION_NAME",
+    "version": "1.0",
+    "description": "A sample $EXTENSION_TYPE Chrome extension",
+    "permissions": []
 }
-EOT
-        # Create popup.html
-        echo '<!DOCTYPE html><html><head><title>'"${EXTENSION_NAME}"'</title></head><body><h1>'"${EXTENSION_NAME}"' Popup</h1></body></html>' > popup.html
-        ;;
+EOL
 
+# Create files and folders based on extension type
+case "$EXTENSION_TYPE" in
     background)
-        cat <<EOT >> manifest.json
-  ,
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": false
-  }
-}
-EOT
-        # Create background.js
-        echo 'console.log("Background script for '"${EXTENSION_NAME}"' extension loaded");' > background.js
+        # mkdir -p background
+        # touch background/background.js
+        # echo "Creating background/background.js"
+
+        # Add background property to manifest.json
+        jq '.background = { "scripts": [".background/background.js"], "persistent": false }' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
         ;;
 
     content)
-        cat <<EOT >> manifest.json
-  ,
-  "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "js": ["content.js"]
-    }
-  ]
-}
-EOT
-        # Create content.js
-        echo 'console.log("Content script for '"${EXTENSION_NAME}"' extension loaded");' > content.js
+        touch content_script.js
+        echo "Creating content_script.js"
+
+        # Add content_scripts property to manifest.json
+        jq '.content_scripts = [ { "matches": ["<all_urls>"], "js": ["content_script.js"] } ]' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+        ;;
+
+    popup)
+        touch popup.js
+        echo "Creating popup.js"
+
+        # Add browser_action property to manifest.json
+        jq '.browser_action = { "default_popup": "popup.html", "default_icon": "icon.png" }' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
         ;;
 
     *)
-        echo "Error: Invalid extension type"
-        echo ""
-        display_help
-        rm -rf "$EXTENSION_NAME"
+        echo "Error: Invalid extension type. Allowed types are background, content, popup."
         exit 1
         ;;
 esac
 
-echo "Chrome extension project ${EXTENSION_NAME} with ${EXTENSION_TYPE} type initialized successfully."
+# Create index.html and styles.css
+touch index.html styles.css
+echo "Creating index.html"
+echo "Creating styles.css"
+
+# Initialize TypeScript
+if command -v tsc >/dev/null 2>&1 ; then
+    echo "Initializing TypeScript"
+    mkdir -p src/background
+    touch src/background/background.ts
+    mkdir -p .background
+    npm init -y
+    npm install typescript --save-dev
+    touch tsconfig.json
+
+    # Add TypeScript configuration
+    cat > tsconfig.json <<EOL
+{
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "commonjs",
+        "strict": true,
+        "outDir": ".background"
+    },
+    "include": [
+        "src/background/*.ts"
+    ]
+}
+EOL
+cat > .gitignore <<EOL
+.background
+EOL
+
+    # Add npm build command to compile TypeScript files
+    jq '.scripts.build = "tsc"' package.json > package.tmp && mv package.tmp package.json
+else
+    echo "TypeScript is not installed. If you need TypeScript support, install it globally using 'npm install -g typescript'"
+fi
+
+echo "Chrome extension $EXTENSION_NAME with $EXTENSION_TYPE type has been initialized."
