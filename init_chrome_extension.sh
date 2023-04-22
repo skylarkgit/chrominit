@@ -35,14 +35,14 @@ EXTENSION_DIR="$EXTENSION_NAME"
 mkdir -p "$EXTENSION_DIR"
 cd "$EXTENSION_DIR"
 
-# Create a basic manifest.json file
-cat > manifest.json <<EOL
+# Create manifest.json file
+cat > manifest.json << EOL
 {
-    "manifest_version": 3,
-    "name": "$EXTENSION_NAME",
-    "version": "1.0",
-    "description": "A sample $EXTENSION_TYPE Chrome extension",
-    "permissions": []
+  "manifest_version": 3,
+  "name": "${EXTENSION_NAME}",
+  "version": "1.0",
+  "description": "A sample $EXTENSION_TYPE Chrome extension",
+  "permissions": []
 }
 EOL
 
@@ -54,7 +54,7 @@ case "$EXTENSION_TYPE" in
         # echo "Creating background/background.js"
 
         # Add background property to manifest.json
-        jq '.background = { "scripts": ["build/bundle.js"], "persistent": false }' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+        jq '.background = { "service_worker": ["build/bundle.js"]}' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
         ;;
 
     content)
@@ -62,7 +62,7 @@ case "$EXTENSION_TYPE" in
         # echo "Creating content_script.js"
 
         # Add content_scripts property to manifest.json
-        jq '.content_scripts = [ { "matches": ["<all_urls>"], "js": ["build/bundle.js"] } ]' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+        jq '.content_scripts = [ { "matches": [], "js": ["build/bundle.js"] } ]' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
         ;;
 
     popup)
