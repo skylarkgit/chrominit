@@ -28,6 +28,9 @@ case "$SUBCOMMAND" in
   manifest)
     "$SCRIPTS_DIR/modify_manifest.sh" "$@"
     ;;
+  toggle)
+    "$SCRIPTS_DIR/toggle_sites.sh" "$@"
+    ;;
   # Add more subcommands below
   *)
     echo "Error: Unknown subcommand '$SUBCOMMAND'"
